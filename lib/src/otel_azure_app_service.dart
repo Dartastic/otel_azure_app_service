@@ -2,7 +2,6 @@
 // Copyright 2025-2026 Mindful Software LLC d/b/a Dartastic.io, All rights reserved.
 
 import 'package:dartastic_opentelemetry/dartastic_opentelemetry.dart';
-import 'package:dartastic_opentelemetry_api/dartastic_opentelemetry_api.dart';
 
 import 'otel_azure_app_service_suppression.dart';
 
@@ -69,80 +68,117 @@ Future<T> tracedAzureAppService<T>({
   final span =
       t.startSpan('azure_app_service $operation', kind: SpanKind.client);
   try {
-    span.setStringAttribute('rpc.system', 'azure');
-    span.setStringAttribute('rpc.service', 'AppService');
-    span.setStringAttribute('rpc.method', operation);
+    span.addAttributes(
+        OTel.attributes([OTel.attributeString('rpc.system', 'azure')]));
+    span.addAttributes(
+        OTel.attributes([OTel.attributeString('rpc.service', 'AppService')]));
+    span.addAttributes(
+        OTel.attributes([OTel.attributeString('rpc.method', operation)]));
     final r = await invoke();
     final res = r.result;
     if (res != null) {
       if (res.subscriptionId != null) {
-        span.setStringAttribute('azure.subscription.id', res.subscriptionId!);
+        span.addAttributes(OTel.attributes([
+          OTel.attributeString('azure.subscription.id', res.subscriptionId!)
+        ]));
       }
       if (res.resourceGroup != null) {
-        span.setStringAttribute('azure.resource_group', res.resourceGroup!);
+        span.addAttributes(OTel.attributes([
+          OTel.attributeString('azure.resource_group', res.resourceGroup!)
+        ]));
       }
       if (res.region != null) {
-        span.setStringAttribute('azure.region', res.region!);
+        span.addAttributes(OTel.attributes(
+            [OTel.attributeString('azure.region', res.region!)]));
       }
       if (res.siteName != null) {
-        span.setStringAttribute('azure.app_service.site.name', res.siteName!);
+        span.addAttributes(OTel.attributes([
+          OTel.attributeString('azure.app_service.site.name', res.siteName!)
+        ]));
       }
       if (res.slotName != null) {
-        span.setStringAttribute('azure.app_service.slot', res.slotName!);
+        span.addAttributes(OTel.attributes(
+            [OTel.attributeString('azure.app_service.slot', res.slotName!)]));
       }
       if (res.appServicePlan != null) {
-        span.setStringAttribute(
-            'azure.app_service.plan.name', res.appServicePlan!);
+        span.addAttributes(OTel.attributes([
+          OTel.attributeString(
+              'azure.app_service.plan.name', res.appServicePlan!)
+        ]));
       }
       if (res.skuName != null) {
-        span.setStringAttribute('azure.app_service.sku.name', res.skuName!);
+        span.addAttributes(OTel.attributes([
+          OTel.attributeString('azure.app_service.sku.name', res.skuName!)
+        ]));
       }
       if (res.skuTier != null) {
-        span.setStringAttribute('azure.app_service.sku.tier', res.skuTier!);
+        span.addAttributes(OTel.attributes([
+          OTel.attributeString('azure.app_service.sku.tier', res.skuTier!)
+        ]));
       }
       if (res.instanceId != null) {
-        span.setStringAttribute(
-            'azure.app_service.instance.id', res.instanceId!);
+        span.addAttributes(OTel.attributes([
+          OTel.attributeString('azure.app_service.instance.id', res.instanceId!)
+        ]));
       }
       if (res.runtimeStack != null) {
-        span.setStringAttribute(
-            'azure.app_service.runtime.stack', res.runtimeStack!);
+        span.addAttributes(OTel.attributes([
+          OTel.attributeString(
+              'azure.app_service.runtime.stack', res.runtimeStack!)
+        ]));
       }
       if (res.runtimeVersion != null) {
-        span.setStringAttribute(
-            'azure.app_service.runtime.version', res.runtimeVersion!);
+        span.addAttributes(OTel.attributes([
+          OTel.attributeString(
+              'azure.app_service.runtime.version', res.runtimeVersion!)
+        ]));
       }
       if (res.operatingSystem != null) {
-        span.setStringAttribute('azure.app_service.os', res.operatingSystem!);
+        span.addAttributes(OTel.attributes([
+          OTel.attributeString('azure.app_service.os', res.operatingSystem!)
+        ]));
       }
       if (res.deploymentId != null) {
-        span.setStringAttribute(
-            'azure.app_service.deployment.id', res.deploymentId!);
+        span.addAttributes(OTel.attributes([
+          OTel.attributeString(
+              'azure.app_service.deployment.id', res.deploymentId!)
+        ]));
       }
       if (res.deploymentStatus != null) {
-        span.setStringAttribute(
-            'azure.app_service.deployment.status', res.deploymentStatus!);
+        span.addAttributes(OTel.attributes([
+          OTel.attributeString(
+              'azure.app_service.deployment.status', res.deploymentStatus!)
+        ]));
       }
       if (res.deploymentSource != null) {
-        span.setStringAttribute(
-            'azure.app_service.deployment.source', res.deploymentSource!);
+        span.addAttributes(OTel.attributes([
+          OTel.attributeString(
+              'azure.app_service.deployment.source', res.deploymentSource!)
+        ]));
       }
       if (res.coldStart != null) {
-        span.setBoolAttribute('azure.app_service.cold_start', res.coldStart!);
+        span.addAttributes(OTel.attributes([
+          OTel.attributeBool('azure.app_service.cold_start', res.coldStart!)
+        ]));
       }
       if (res.statusCode != null) {
-        span.setIntAttribute('http.response.status_code', res.statusCode!);
+        span.addAttributes(OTel.attributes(
+            [OTel.attributeInt('http.response.status_code', res.statusCode!)]));
       }
       if (res.errorCode != null) {
-        span.setStringAttribute('azure.app_service.error.code', res.errorCode!);
+        span.addAttributes(OTel.attributes([
+          OTel.attributeString('azure.app_service.error.code', res.errorCode!)
+        ]));
       }
       final fail = res.errorCode != null ||
           (res.statusCode != null && res.statusCode! >= 400) ||
           res.deploymentStatus == 'Failed' ||
           res.deploymentStatus == 'Cancelled';
       if (fail) {
-        span.setStringAttribute(ErrorResource.errorType.key,
-            res.errorCode ?? 'azure_app_service.error');
+        span.addAttributes(OTel.attributes([
+          OTel.attributeString(ErrorResource.errorType.key,
+              res.errorCode ?? 'azure_app_service.error')
+        ]));
         span.setStatus(SpanStatusCode.Error, res.errorMessage);
       }
     }
